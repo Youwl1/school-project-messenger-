@@ -1,0 +1,81 @@
+{% extends "main/layout.html" %}
+{% load static %}
+{% block title %}
+    Профиль
+{% endblock %}
+{% block content %}
+    <div class="features">
+        <div class="container-profile">
+            <h1>Редактировать профиль</h1>
+            <form action = '{% url "profile" %}' method="post" enctype="multipart/form-data">
+                {% csrf_token %}   
+                <div class="form-group1">
+                    <div class = 'col-md-12 mb-3 text-center'>
+                        {% if user.image %}
+                            <img src = '{{ user.image.url }}'
+                            alt = 'Аватар пользователя' 
+                            class = 'user_image'
+                            style = 'background-color: white;'>                             
+                        {% else %}
+                            <img src="http://study-baltic.ru/wp-content/uploads/2017/08/znak-voprosa.png"
+                            alt = 'Аватар пользователя'
+                            class = 'user_image'
+                            style = 'background-color: white;'>    
+                        {% endif %}
+                        <p>Аватар:</p>
+                        <div class = 'image_btn'>
+                            <label for = 'id_image' class = 'label_image'>Выбрать фото</label>
+                        </div>
+                        <div>
+                            <input type="file" style="visibility:hidden;" id="id_image" name="image" accept="image/*" class = 'profile_settings'>       
+                        </div>                
+                        {% if form.image.errors %}
+                        <div class = 'features'>
+                            <div class = errors_1>{{form.image.errors}}</div>                   
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class = 'profile_2_3'>
+                    <div class = 'form-group1' id = 'profile_2'>  
+                        <p for="id_username">Имя:</p>
+                        <input type="text" id="id_username" name="username" 
+                        required 
+                        class = 'profile_settings'
+                        value = "{{ form.username.value}}">
+                        {% if form.username.errors %}
+                        <div class = 'features'>
+                            <div class = errors_1_username>Имя должно быть без пробелов.</div>                   
+                        </div>
+                        {% endif %}
+                    </div>
+        
+                    <div class="form-group1">
+                        <p for="id_email">Электронная почта:</p>
+                        <input type="email" id="id_email" name="email" required class = 'profile_settings'
+                        value="{{ form.email.value}}">
+                        {% if form.email.errors %}
+                        <div class = 'features'>
+                            <div class = errors_1>{{form.email.errors}}</div>                   
+                        </div>
+                        {% endif %}
+                    </div> 
+                    {% if messages %}
+                        {% for message in messages %}
+                                <div class="message_success_profile">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                    <button type="submit" class="edit-profile">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>     
+{% endblock %}
+
+
+
+
+
+
+
+
