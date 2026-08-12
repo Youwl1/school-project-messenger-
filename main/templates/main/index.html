@@ -1,0 +1,36 @@
+{% extends "main/layout.html" %}
+{% load static %}
+{% block title %}
+    Главная страница
+{% endblock %}
+{% block content %}
+    <div class="features">
+        {% if not user.is_authenticated %}
+            <h1 class='logo_index'>Добро пожаловать на главную страницу</h1>
+            <h3 class='h3_index'>Зарегистрируйтесь и получите больше возможностей!</h3>
+                <div class="login-container">
+                    <form class="login-form" action='{% url "login" %}' method='post'>
+                        {% csrf_token %}
+                        <h1>Вход</h1>
+                        <div class="input-group">
+                            <label for="id_username">Имя пользователя</label>
+                            <input type="text" name="username" value="{% if form.username.value %}{{ form.username.value }}{% endif %}" id="id_username" class='polzovatel' placeholder="Введите ваше имя пользователя" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="id_password">Пароль</label>
+                            <input type="password" id="id_password" name="password" placeholder="Введите ваш пароль" required>
+                        </div>
+                        <button type="submit" class='enter_site_login'>Войти</button>
+                        {% if form.non_field_errors %}
+                            <div class='features'>
+                                <div class='errors_2'>Вы неправильно ввели пароль или имя. Повторите попытку.</div>                   
+                            </div>
+                        {% endif %}
+                        <p><a href="{% url 'registration' %}" class='enter_to_site'>Регистрация</a></p> 
+                    </form>
+                </div>
+        {% else %}
+                              
+        {% endif %}
+    </div>
+{% endblock %}

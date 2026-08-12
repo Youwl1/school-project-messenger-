@@ -1,0 +1,130 @@
+{% extends 'main/layout.html' %}
+{% load static %}
+{% block title %}
+    Добавить новость
+{% endblock %}
+{% block content %}
+<div class="body_chat">
+    <div class="chat-room">
+        <div class="chat__item__container" id="id_chat_item_container">
+            <div class="chat__container">
+                <div id="id_chat_message_container" class="chat-container">
+                    {% for message in messages %}
+                    <div class="message-container {% if message.user.username == request.user.username %}current-user{% else %}other-user{% endif %}">
+                        <img src="{{ message.user.image.url }}" 
+                             class="message-avatar" 
+                             alt="{{ message.user.username }}">
+                        <div class="message-content {% if message.user.username == request.user.username %}current-user{% else %}other-user{% endif %}">
+                            <span class="message-username">{{ message.user.username }}</span>
+                            <div class="message-text">{{ message.content }}</div>
+                            <div class="message-timestamp">{{ message.timestamp|time:"H:i" }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="chat-input-container">
+            <input type="text" id="id_message_send_input" class="form-control" placeholder="Введите сообщение...">
+            <button id="id_message_send_button">Отправить</button>
+        </div>
+    </div>
+</div>
+    <script>
+        let messageCounter = 0;
+        const chatSocket = new WebSocket(
+            'ws://' + window.location.host + '/ws/chat/'
+        );
+    
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            addMessage(data);
+        };
+    
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+    
+        function addMessage(data) {
+            if (document.querySelector(`[data-message-id="${data.id}"]`)) {
+                return;
+            }
+
+            const container = document.getElementById('id_chat_message_container');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message-container ' + (data.is_current ? 'current-user' : 'other-user');
+            messageDiv.dataset.messageId = data.id;
+            
+            let content = `
+                <img src="${data.avatar}" alt="${data.username}" class="message-avatar">
+                <div class="message-content ${data.is_current ? 'current-user' : 'other-user'}">
+                    <span class="message-username">${data.username}</span>
+                    <div class="message-text">${data.message}</div>
+                    <div class="message-timestamp">${data.timestamp}</div>
+                </div>
+            `;
+            
+            messageDiv.innerHTML = content;
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+            
+            messageDiv.style.opacity = '0';
+            messageDiv.style.transform = 'translateY(10px)';
+            setTimeout(() => {
+                messageDiv.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                messageDiv.style.opacity = '1';
+                messageDiv.style.transform = 'translateY(0)';
+            }, 10);
+        }
+
+        document.getElementById('id_message_send_button').onclick = async function(e) {
+            e.preventDefault();
+            
+            const messageInput = document.getElementById('id_message_send_input');
+            
+            if (messageInput.value.trim() !== '') {
+                const messageId = 'msg-' + Date.now() + '-' + (messageCounter++);
+                const messageData = {
+                    'id': messageId,
+                    'message': messageInput.value,
+                    'username': '{{ request.user.username }}',
+                    'avatar': '{{ request.user.image.url }}',
+                    'is_current': true,
+                    'timestamp': new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                };
+                
+                addMessage(messageData);
+                
+                chatSocket.send(JSON.stringify({
+                    'id': messageId,
+                    'message': messageInput.value,
+                    'username': '{{ request.user.username }}',
+                    'avatar': '{{ request.user.image.url }}'
+                }));
+                
+                messageInput.value = '';
+            }
+        };
+    
+        document.getElementById('id_message_send_input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('id_message_send_button').click();
+            }
+        });
+    
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+{% endblock %}

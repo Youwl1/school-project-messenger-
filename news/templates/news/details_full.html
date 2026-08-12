@@ -1,0 +1,50 @@
+{% extends 'main/layout.html' %}
+{% load static %}
+{% block title %}
+    {{ article.title }}
+{% endblock %}
+{% block content %}
+    <div class="features">
+        {% csrf_token %} 
+        <div class = 'news_edit'>
+            <div class = news_full>
+                <h1 class='title_news_full'>Редактировать новость</h1>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label for="{{ form.title.id_for_label }}" >{{ form.title.label }}</label>
+                        <p class = 'area_edit_news'>{{ form.title }}</p>
+                        {% if form.title.errors %}
+                            <div class="error">{{ form.title.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label for="{{ form.anons.id_for_label }}">{{ form.anons.label }}</label>
+                        <p class = 'area_edit_news'>{{ form.anons }}</p>
+                        {% if form.anons.errors %}
+                            <div class="error">{{ form.anons.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label for="{{ form.full_text.id_for_label }}">{{ form.full_text.label }}</label>
+                        <p class = 'area_edit_news'>{{ form.full_text }}</p>
+                        {% if form.full_text.errors %}
+                            <div class="error">{{ form.full_text.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group" style=" margin-bottom: 15px; ">
+                        <label for="{{ form.date.id_for_label }}" >{{ form.date.label }}</label>
+                        <p class = 'area_edit_news'>{{ form.date }}</p>
+                        {% if form.date.errors %}
+                            <div class="error">{{ form.date.errors }}</div>
+                        {% endif %}
+                    </div>
+                    <button type="submit"  class = 'button_edit_news'>Сохранить изменения</button>
+                </form>
+            </div>   
+        </div>
+    </div>
+{% endblock %}

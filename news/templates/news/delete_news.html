@@ -1,0 +1,64 @@
+{% extends 'main/layout.html' %}
+{% load static %}
+{% block title %}
+    Удалить статью
+{% endblock %}
+{% block content %}
+<div class="features">
+    <div class="delete_forms">
+        <h1>Удалить статью?</h1>
+        <form method="post" class="delete_form">
+            {% csrf_token %} 
+            <button class="button_delete_news" type="button" data-id="{{ article.id }}">Удалить</button>
+            <a href="{% url 'news_home' %}">Отмена</a>
+        </form>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteButton = document.querySelector('.button_delete_news');
+
+        deleteButton.addEventListener('click', function() {
+            const articleId = this.getAttribute('data-id');
+            
+            if (confirm('Вы уверены, что хотите удалить эту статью?')) {
+                fetch(`/news/${articleId}/delete/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ id: articleId })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Статья успешно удалена.');
+                        window.location.href = '/news/';
+                    } else {
+                        alert('Ошибка при удалении статьи.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                    alert('Произошла ошибка при удалении статьи.');
+                });
+            }
+        });
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    });
+</script>
+{% endblock %}

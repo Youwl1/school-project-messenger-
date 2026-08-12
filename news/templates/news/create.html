@@ -1,0 +1,23 @@
+{% extends 'main/layout.html' %}
+{% load static %}
+{% block title %}
+    Добавить новость
+{% endblock %}
+{% block content %}
+    <div class="features">
+        <div class = 'create_news'>
+            <h1>Добавление новости</h1>
+            <form method="post">
+                {% csrf_token %}
+                <br>{{ form.title }}</br>
+                <br>{{ form.anons }}</br>
+                <br>{{ form.full_text }}</br>
+                <br>{{ form.date }}</br>         
+                {% if error %}
+                    <p style="color: red;">{{ error }}</p>
+                {% endif %}
+                <p><button class="edit-news" type = 'submit'>Добавить</button></p>
+            </form>
+        </div>
+    </div>  
+{% endblock %}

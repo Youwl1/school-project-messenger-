@@ -1,0 +1,23 @@
+{% extends 'main/layout.html' %}
+{% load static %}
+{% block title %}
+    {{ article.title }}
+{% endblock %}
+{% block content %}
+<div class="features">
+    {% csrf_token %} 
+    <div class="news_edit">
+        <div class="news_full">
+            <div class="news_content">
+                <h1 class="title_news_full">{{ article.title }}</h1>
+                <div class="news_meta">
+                    <p class="date_news_full">{{ article.date }}</p>
+                </div>
+                <div class="news_body">
+                    <p class="text_news_full">{{ article.full_text }}</p>
+                </div>
+            </div>
+        </div>   
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends 'main/layout.html' %}
+
+{% load static %}
+{% block title %}
+    Новости
+{% endblock %}
+{% block content %}
+<div class="features">
+    <h1>НОВОСТИ</h1>
+    <div class="news-container">
+        {% if news %}
+            {% for i in news %}
+                {% csrf_token %} 
+                <div class='alert' id='news-{{ i.id }}'> 
+                    <h3 class='title3'>{{ i.title }}</h3>
+                    <p><b>{{ i.anons }}</b></p>
+                    <p class='date1'>{{ i.date }}</p>
+                    <p class='author'>Автор: {{ i.author.username }}</p>
+                    <p><a href='{% url "news_details" i.id %}'>Читать полностью</a></p>
+                    {% if user.is_authenticated and user == i.author %}
+                        <a href='{% url "news_update" i.id %}' class='button_news'>Редактировать</a>
+                        <button class='button_news_delete' data-id='{{ i.id }}'>Удалить</button>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <p style="background-color: aliceblue;">Нет новостей для отображения.</p>
+        {% endif %}
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const deleteButtons = document.querySelectorAll('.button_news_delete');
+
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const articleId = this.getAttribute('data-id');
+
+                if (confirm('Вы уверены, что хотите удалить эту статью?')) {
+                    fetch(`/news/${articleId}/delete/`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken'),
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ id: articleId }) 
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            const newsElement = document.getElementById(`news-${articleId}`);
+                            if (newsElement) {
+                                newsElement.remove();
+                                alert('Статья успешно удалена.');
+                            }
+                        } else {
+                            alert('Ошибка при удалении статьи.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Ошибка:', error);
+                        alert('Произошла ошибка при удалении статьи.');
+                    });
+                }
+            });
+        });
+    });
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}
